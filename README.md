@@ -1,0 +1,104 @@
+# CTF Toolkit
+
+Personal reference + helper scripts for CTF categories: Web, Crypto, Forensic,
+Network, Stego, OSINT, Reversing, MISC. See [TOOLS.md](TOOLS.md) for the full
+tool list this toolkit assumes is available.
+
+Scripts shell out only to the tools in TOOLS.md (or use Python stdlib). No
+online analysis services, no AI/ML libraries, no commercial-license tools.
+
+## Layout
+
+```
+TOOLS.md       Tool list + ground rules.
+cheatsheets/   Markdown notes, one per category.
+scripts/       Runnable helpers (python / bash).
+```
+
+## Cheatsheets
+
+| File | Category | Covers |
+| --- | --- | --- |
+| [web-sqli.md](cheatsheets/web-sqli.md) | Web | SQL injection — error/UNION/blind, SQLite quirks, Juice-Shop specifics |
+| [web-xss.md](cheatsheets/web-xss.md) | Web | Reflected / stored / DOM XSS, context + filter bypasses + CSP |
+| [web-ssrf.md](cheatsheets/web-ssrf.md) | Web | SSRF probes, cloud metadata, protocol smuggling |
+| [web-auth-jwt.md](cheatsheets/web-auth-jwt.md) | Web | JWT attacks + session + OAuth + password reset |
+| [crypto-hashes.md](cheatsheets/crypto-hashes.md) | Crypto | Hash ID, hashcat/john modes, classical, RSA, XOR, padding oracle |
+| [forensics.md](cheatsheets/forensics.md) | Forensic | File carving, PDF, memory, disk, Windows DFIR (Chainsaw / EZ Tools) |
+| [network.md](cheatsheets/network.md) | Network | pcap triage, tshark filters, DNS/ICMP/USB/TLS/wireless |
+| [stego.md](cheatsheets/stego.md) | Stego | Image / audio / video / text stego |
+| [imagemagick.md](cheatsheets/imagemagick.md) | Stego | ImageMagick recipes: bit-plane work, LSB extraction, diffs, QR preprocessing |
+| [osint.md](cheatsheets/osint.md) | OSINT | Pre-event prep reference; mostly offline during the comp |
+| [reversing.md](cheatsheets/reversing.md) | Reversing | Ghidra / radare2 / gdb-gef / dnSpy / jadx / angr / Frida |
+| [misc.md](cheatsheets/misc.md) | MISC | QR / SSTV / Morse / sqlite trivia / container escape / LPE |
+| [recon.md](cheatsheets/recon.md) | — | Recon helpers that cross categories |
+
+## Scripts
+
+### Setup
+
+| Script | Purpose |
+| --- | --- |
+| [check-approved.sh](scripts/check-approved.sh) | Verify which common CTF tools are installed. Optional category filter: `./check-approved.sh web`. |
+
+### Web
+
+| Script | Purpose |
+| --- | --- |
+| [sqli-smoketest.sh](scripts/sqli-smoketest.sh) | Fire 15+ SQLi probes at a URL, flag diffs and SQL error leaks (curl only) |
+| [jwt.py](scripts/jwt.py) | Decode / forge-none / resign / crack / edit JWTs (stdlib) |
+| [urlcode.py](scripts/urlcode.py) | URL / HTML / base64 / hex / rot codec, chainable (stdlib) |
+| [replay.sh](scripts/replay.sh) | Replay a raw HTTP request (Burp-style file) with curl |
+| [enum-web.sh](scripts/enum-web.sh) | Opinionated recon: headers, robots, sensitive paths, ffuf, katana, subfinder |
+| [race-fire.sh](scripts/race-fire.sh) | Fire N parallel curls (race conditions) |
+| [flask-cookie.py](scripts/flask-cookie.py) | Decode / crack / forge Flask session cookies (stdlib) |
+
+### 2FA / captcha
+
+| Script | Purpose |
+| --- | --- |
+| [totp.py](scripts/totp.py) | Generate TOTP codes when the secret has leaked (stdlib) |
+| [otp-bruteforce.py](scripts/otp-bruteforce.py) | Probe 2FA endpoint for weak rate limiting (stdlib) |
+| [captcha-math.py](scripts/captcha-math.py) | Auto-solve numeric/text math captchas (stdlib) |
+
+### Crypto
+
+| Script | Purpose |
+| --- | --- |
+| [hash-id.py](scripts/hash-id.py) | Identify likely hash type (stdlib) |
+| [cipher-id.py](scripts/cipher-id.py) | Identify + decode ~35 ciphers. Keyless: hex, b64/32/58/85, URL, HTML, Morse, Baconian, A1Z26, T9, NATO, Leet, Brainfuck, Ook, Atbash, ROT13/47, Caesar brute, Affine brute, Trithemius, Rail-fence brute, Tap code, JWT, PEM. Keyed: Vigenere, Gronsfeld, Beaufort, Autokey, Playfair, Columnar, XOR. Bruteforce: xor-single, xor-repeating. `--chain` peels wrappers. (stdlib) |
+| [sym-crypt.py](scripts/sym-crypt.py) | Symmetric encrypt/decrypt with key+IV/nonce: AES-ECB/CBC/CFB/OFB/CTR/GCM, 3DES-ECB/CBC, ChaCha20, ChaCha20-Poly1305, Blowfish. (needs `cryptography`) |
+| [caesar.py](scripts/caesar.py) | All 26 Caesar shifts + ROT47 (stdlib) |
+| [xor-crack.py](scripts/xor-crack.py) | Single-byte & repeating-key XOR via frequency (stdlib) |
+| [rsa-attack.py](scripts/rsa-attack.py) | e=3 / Fermat / factordb / Wiener / common factor (stdlib; prefer `RsaCtfTool` for serious use) |
+
+### Forensics / stego / network
+
+| Script | Purpose |
+| --- | --- |
+| [magic-bytes.py](scripts/magic-bytes.py) | Identify files by signature + scan for embedded blobs (stdlib) |
+| [stego-triage.sh](scripts/stego-triage.sh) | Throw stego tools at a file; grep for flag |
+| [pcap-triage.sh](scripts/pcap-triage.sh) | Fast pcap overview via tshark; HTTP object export; cleartext-proto cred extract |
+| [usb-keystrokes.py](scripts/usb-keystrokes.py) | Decode USB HID keyboard capdata (stdlib) |
+
+### OSINT
+
+| Script | Purpose |
+| --- | --- |
+| [osint-handle.sh](scripts/osint-handle.sh) | Probe common sites directly for a username (curl only) |
+
+## First run on a Kali-style VM
+
+```bash
+./scripts/check-approved.sh         # verify everything is present
+./scripts/check-approved.sh web     # filter to one category
+
+# Confirm offline references exist (if your VM has them)
+ls /opt/tools/{PayloadsAllTheThings,HackTricks,GTFOBins.github.io,crypto-attacks}
+ls /usr/share/wordlists/rockyou.txt
+ls /usr/share/seclists
+```
+
+## Ethics
+
+Only use these against systems you own or have explicit written authorization to test.
