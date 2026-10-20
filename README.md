@@ -10,10 +10,21 @@ online analysis services, no AI/ML libraries, no commercial-license tools.
 ## Layout
 
 ```
+USAGE.md       How to run each script, with worked examples per task.
 TOOLS.md       Tool list + ground rules.
+install.sh     Symlink scripts into ~/.local/bin so they're callable by short name.
 cheatsheets/   Markdown notes, one per category.
 scripts/       Runnable helpers (python / bash).
 ```
+
+## Quickstart
+
+```bash
+./install.sh                       # one-time: puts scripts on your PATH
+cipher-id --help                   # try any script by its short name
+```
+
+See [USAGE.md](USAGE.md) for end-to-end examples per task and a per-script reference.
 
 ## Cheatsheets
 
