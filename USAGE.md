@@ -549,3 +549,32 @@ grep -R flag image-<name>-out/      # fast literal-flag scan
 ```
 
 Required tools: `convert` (ImageMagick), `strings`, `exiftool`. Optional: `zbarimg`, `binwalk`, `zsteg`.
+
+### `cve-scan` — service + web CVE / exploit lookup (nmap + searchsploit)
+
+```
+cve-scan <host|ip>                     # TCP service scan + CVE lookup
+cve-scan https://target.example        # web fingerprint + CVE lookup (auto-detects URL vs IP)
+cve-scan --fast 10.0.0.5               # top-100 ports only
+cve-scan --full 10.0.0.5               # all 65535 ports (slow)
+cve-scan --search 'apache 2.4.49'      # skip discovery, just query searchsploit
+cve-scan --nmap-only 10.0.0.5          # NSE vuln scripts, no searchsploit
+```
+
+Chains:
+- `nmap -sV --script "default,vuln,safe"` → services + CVE IDs from vuln NSE scripts
+- `curl -I` + body sniff for web mode → Server / X-Powered-By / `<meta generator>`
+- `searchsploit <service> <version>` per discovered service → offline Exploit-DB matches
+
+Produces a dated output directory with:
+```
+nmap.nmap  nmap.xml                   # full nmap output
+services.txt                          # extracted "80/tcp open http Apache 2.4.49" lines
+cves.txt                              # unique CVE IDs seen in NSE output
+searchsploit-<service>.txt            # one file per matched service
+sensitive.txt                         # (web mode) non-404 paths from quick probe
+```
+
+Requires: `nmap`. Optional: `searchsploit` (apt install exploitdb), `curl`.
+
+Only use against systems you're explicitly authorized to test.

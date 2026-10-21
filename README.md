@@ -61,6 +61,7 @@ See [USAGE.md](USAGE.md) for end-to-end examples per task and a per-script refer
 | [urlcode.py](scripts/urlcode.py) | URL / HTML / base64 / hex / rot codec, chainable (stdlib) |
 | [replay.sh](scripts/replay.sh) | Replay a raw HTTP request (Burp-style file) with curl |
 | [enum-web.sh](scripts/enum-web.sh) | Opinionated recon: headers, robots, sensitive paths, ffuf, katana, subfinder |
+| [cve-scan.sh](scripts/cve-scan.sh) | Service + web stack fingerprint → nmap vuln NSE + searchsploit (offline Exploit-DB) lookup; auto-switches between network and web modes |
 | [race-fire.sh](scripts/race-fire.sh) | Fire N parallel curls (race conditions) |
 | [flask-cookie.py](scripts/flask-cookie.py) | Decode / crack / forge Flask session cookies (stdlib) |
 
