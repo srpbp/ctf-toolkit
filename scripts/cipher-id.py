@@ -276,6 +276,58 @@ def dec_columnar(s, k):
             if r < heights[c]: out.append(cols[c].pop(0))
     return "".join(out).encode()
 
+# ---------- Vigenere bruteforce (keyless) ----------
+_ENG_CHI = {"A":8.17,"B":1.49,"C":2.78,"D":4.25,"E":12.70,"F":2.23,"G":2.02,"H":6.09,
+            "I":6.97,"J":0.15,"K":0.77,"L":4.03,"M":2.41,"N":6.75,"O":7.51,"P":1.93,
+            "Q":0.10,"R":5.99,"S":6.33,"T":9.06,"U":2.76,"V":0.98,"W":2.36,"X":0.15,
+            "Y":1.97,"Z":0.07}
+
+def _chi2(col, shift):
+    dec = [chr((ord(c.upper()) - ord("A") - shift) % 26 + ord("A")) for c in col]
+    f = Counter(dec); n = len(dec)
+    return sum((f.get(L, 0) - _ENG_CHI[L]*n/100) ** 2 / (_ENG_CHI[L]*n/100 + 0.1) for L in _ENG_CHI)
+
+def dec_vigenere_brute(s, max_keylen=20, top_keylens=3):
+    """Rank keylens 1..max by average IC per column, crack each via chi-squared."""
+    letters_only = "".join(c for c in s if c.isalpha())
+    if len(letters_only) < 10:
+        return b"too-short - vigenere brute needs >= 10 letters"
+    scores = []
+    for K in range(1, min(max_keylen, len(letters_only) // 2) + 1):
+        cols = [letters_only[i::K] for i in range(K)]
+        avg_ic = sum(ioc(c) for c in cols) / K
+        scores.append((avg_ic, K))
+    scores.sort(reverse=True)
+    out = [f"keylen candidates (top {top_keylens} by avg IC, English~0.067):"]
+    for avg_ic, K in scores[:top_keylens]:
+        cols = [letters_only[i::K] for i in range(K)]
+        key = "".join(chr(ord("A") + min(range(26), key=lambda sh: _chi2(c, sh))) for c in cols)
+        pt = dec_vigenere(s, key).decode(errors="replace")
+        out.append(f"  K={K:2d}  avg_ic={avg_ic:.3f}  key={key}  →  {pt[:120]}")
+    return "\n".join(out).encode()
+
+def dec_vigenere_known_prefix(s, prefix):
+    """Derive the key from a known plaintext prefix, show full decryption."""
+    letters_only = "".join(c for c in s if c.isalpha())
+    pfx_alpha   = "".join(c for c in prefix if c.isalpha()).upper()
+    if len(pfx_alpha) < 2:
+        return b"prefix must have >= 2 letters"
+    # Compute shift at each prefix position
+    shifts = []
+    for i, p in enumerate(pfx_alpha):
+        c = letters_only[i].upper()
+        shifts.append((ord(c) - ord(p)) % 26)
+    # Try every keylen that evenly explains the shifts (shifts[i] == shifts[i+K] for all i)
+    out = ["known-plaintext key derivation:"]
+    for K in range(1, len(pfx_alpha) + 1):
+        ok = all(shifts[j] == shifts[j % K] for j in range(len(pfx_alpha)))
+        if not ok: continue
+        key = "".join(chr(ord("A") + shifts[i]) for i in range(K))
+        pt = dec_vigenere(s, key).decode(errors="replace")
+        out.append(f"  K={K:2d}  key={key:20s}  →  {pt[:120]}")
+    return "\n".join(out).encode()
+
+
 # ---------- XOR ----------
 def _xor_input(s):
     s = s.strip()
@@ -348,7 +400,11 @@ KEYED = {"vigenere": dec_vigenere, "gronsfeld": dec_gronsfeld, "beaufort": dec_b
          "autokey": dec_autokey, "playfair": dec_playfair, "columnar": dec_columnar,
          "xor": dec_xor_known}
 
-BRUTE = {"xor-single": dec_xor_single, "xor-repeating": dec_xor_repeating}
+BRUTE = {"xor-single": dec_xor_single, "xor-repeating": dec_xor_repeating,
+         "vigenere-brute": dec_vigenere_brute}
+
+# Prefix-driven derivers: take ciphertext, derive key from --key as known plaintext
+PREFIX = {"vigenere-prefix": dec_vigenere_known_prefix}
 
 # ---------- identify ----------
 def identify(text):
@@ -460,6 +516,7 @@ def main():
         print("keyless:"); [print(f"  {n}") for n in sorted(NOKEY)]
         print("\nkeyed (--key):"); [print(f"  {n}") for n in sorted(KEYED)]
         print("\nbrute:"); [print(f"  {n}") for n in sorted(BRUTE)]
+        print("\nknown-plaintext (--key = plaintext prefix):"); [print(f"  {n}") for n in sorted(PREFIX)]
         return
 
     text = a.text if a.text and a.text != "-" else sys.stdin.read()
@@ -473,6 +530,9 @@ def main():
                 if not a.key: sys.exit(f"{c} needs --key")
                 out = KEYED[c](text, a.key)
             elif c in BRUTE: out = BRUTE[c](text)
+            elif c in PREFIX:
+                if not a.key: sys.exit(f"{c} needs --key (used as known-plaintext prefix)")
+                out = PREFIX[c](text, a.key)
             else: sys.exit(f"unknown cipher: {c}  (--list)")
         except Exception as e: sys.exit(f"error: {e}")
         print(preview(out, 4000)); return
