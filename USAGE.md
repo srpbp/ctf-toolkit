@@ -484,3 +484,42 @@ check-approved web             # one category: web|crypto|forensic|network|stego
 ```
 
 Reports present/missing per CLI.
+
+### `stego-whitespace` — decode whitespace stego from text (stdlib)
+
+```
+stego-whitespace <path>                       # try snow / binary / count schemes
+stego-whitespace <path> --scheme snow         # force a scheme
+stego-whitespace <path> --inline              # also look at spaces/tabs BETWEEN words
+stego-whitespace <path> -o out.bin            # write best-scoring candidate
+```
+
+Compatible with `stegsnow -C` output (trailing-space/tab bit encoding).
+
+### `stego-zerowidth` — decode zero-width Unicode stego (stdlib)
+
+```
+stego-zerowidth <path>                        # auto: histogram + try both 0/1 orderings + base4 + tag
+stego-zerowidth <path> --scheme binary --zero U+200B --one U+200C
+stego-zerowidth <path> --scheme base4         # ZWSP=0 ZWNJ=1 ZWJ=2 WJ/BOM=3
+stego-zerowidth <path> --scheme tag           # U+E0020..U+E007E tag chars → ASCII
+```
+
+Covers ZWSP (U+200B), ZWNJ (U+200C), ZWJ (U+200D), WJ (U+2060), BOM/ZWNBSP (U+FEFF), variation selectors (U+FE00-FE0F), and Unicode tag characters.
+
+### `stego-nullcipher` — acrostic / Nth-letter extractors (stdlib)
+
+```
+stego-nullcipher <path>                       # try 1st/2nd/3rd/last letter of word & line, word-length chain
+stego-nullcipher <path> --n 2                 # Nth letter per word (negative = from end)
+stego-nullcipher <path> --skip 3              # take every 3rd word's first letter
+```
+
+### `stego-wav` — WAV LSB extraction (stdlib `wave`)
+
+```
+stego-wav <path.wav>                          # try 1, 2, 3, 4 LSBs per sample
+stego-wav <path.wav> --bits 2                 # force N LSBs
+stego-wav <path.wav> --channel 0              # specific channel on stereo
+stego-wav <path.wav> -o out.bin               # write decoded bytes
+```

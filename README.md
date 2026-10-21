@@ -89,6 +89,10 @@ See [USAGE.md](USAGE.md) for end-to-end examples per task and a per-script refer
 | --- | --- |
 | [magic-bytes.py](scripts/magic-bytes.py) | Identify files by signature + scan for embedded blobs (stdlib) |
 | [stego-triage.sh](scripts/stego-triage.sh) | Throw stego tools at a file; grep for flag |
+| [stego-whitespace.py](scripts/stego-whitespace.py) | Decode whitespace stego (SNOW / binary / count / inline schemes) (stdlib) |
+| [stego-zerowidth.py](scripts/stego-zerowidth.py) | Decode zero-width Unicode stego (binary / base4 / tag) (stdlib) |
+| [stego-nullcipher.py](scripts/stego-nullcipher.py) | Try acrostic / Nth-letter / word-length null-cipher extractions (stdlib) |
+| [stego-wav.py](scripts/stego-wav.py) | Extract 1-4 bit LSB data from WAV audio (stdlib) |
 | [pcap-triage.sh](scripts/pcap-triage.sh) | Fast pcap overview via tshark; HTTP object export; cleartext-proto cred extract |
 | [usb-keystrokes.py](scripts/usb-keystrokes.py) | Decode USB HID keyboard capdata (stdlib) |
 
