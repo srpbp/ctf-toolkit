@@ -523,3 +523,29 @@ stego-wav <path.wav> --bits 2                 # force N LSBs
 stego-wav <path.wav> --channel 0              # specific channel on stereo
 stego-wav <path.wav> -o out.bin               # write decoded bytes
 ```
+
+### `image-stego` — one-shot image analysis (ImageMagick + friends)
+
+```
+image-stego <image> [outdir]
+```
+
+Runs these in order into an output directory you can eyeball:
+1. `identify -verbose` + `exiftool` — metadata
+2. `strings -n 8` — embedded ASCII
+3. `convert -separate` — split R/G/B/A channels
+4. LSB visualisation at 1/2/3/4 bits
+5. Bit planes 0..7 of the red channel
+6. `-negate` and `-auto-level` — reveal faint content
+7. Alpha extract (if present)
+8. `zbarimg` — QR/barcode (also on a thresholded version)
+9. `binwalk --extract` — carve appended files
+10. `zsteg -a` — PNG/BMP LSB stego
+
+After it finishes:
+```bash
+open image-<name>-out/              # macOS — eyeball every PNG
+grep -R flag image-<name>-out/      # fast literal-flag scan
+```
+
+Required tools: `convert` (ImageMagick), `strings`, `exiftool`. Optional: `zbarimg`, `binwalk`, `zsteg`.

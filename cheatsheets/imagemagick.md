@@ -1,12 +1,67 @@
 # ImageMagick
 
-Approved in  (`convert`, `identify`, `montage`, `compare`, `mogrify`,
-`magick` — the IM7 unified binary). Primary uses in CTF: pre-process images
-for stego tools, extract/combine bit planes, probe metadata, compare near-
-duplicate images, generate test material.
+`convert`, `identify`, `montage`, `compare`, `mogrify`, `magick` (IM7 unified binary).
+Primary uses in CTF: pre-process images for stego tools, extract/combine bit planes,
+probe metadata, compare near-duplicate images, generate test material.
 
 Modern IM7 syntax: `magick <in> [ops] <out>`.
 IM6 syntax (still common): `convert <in> [ops] <out>`.
+
+## When to reach for ImageMagick in a CTF
+
+| Situation | Recipe to try first |
+| --- | --- |
+| Got an image, no idea what to do | `scripts/image-stego.sh <img>` chains all common recipes |
+| `file` says PNG but it won't open | `pngcheck -v`; patch header (see "Fix a corrupt PNG header" below) |
+| Suspect LSB stego | `convert img -evaluate And 1 -evaluate Multiply 255 lsb.png` → eyeball |
+| Faint watermark / hidden text | `convert img -negate out.png` and `-auto-level` |
+| Alpha channel might hide something | `convert img -alpha extract alpha.png` |
+| Multi-frame GIF | `convert anim.gif -coalesce f_%03d.png` → look at each frame |
+| Two near-identical images | `compare -metric AE a.png b.png diff.png` |
+| QR code with noise | threshold+morph before `zbarimg` (see "QR/barcode preprocessing") |
+
+If none of those surface the flag, the `scripts/image-stego.sh` wrapper runs
+most of them automatically into an output directory you can eyeball.
+
+## Workflow — step by step
+
+```bash
+# 1. Metadata + strings
+identify -verbose img                  # ImageMagick's full dump
+exiftool -a -G1 -s img                 # richer tag coverage
+strings -n 8 img | less                # any ASCII in the file bytes
+
+# 2. See the channels separately (R / G / B / A)
+convert img -separate ch_%d.png
+# then eyeball ch_0.png (R), ch_1.png (G), ch_2.png (B), ch_3.png (A if present)
+
+# 3. LSB visualisation — amplify low bits so your eye can see them
+convert img -evaluate And 1 -evaluate Multiply 255 lsb.png
+
+# 4. Bit planes of one channel
+for b in 0 1 2 3 4 5 6 7; do
+    m=$((1<<b))
+    convert img -channel R -separate +channel -evaluate And $m -evaluate Multiply $((255/m)) bitR$b.png
+done
+
+# 5. Contrast / negate / threshold tricks for faint content
+convert img -negate                   out.png
+convert img -auto-level               stretched.png
+convert img -colorspace Gray -threshold 50% bw.png
+
+# 6. Compare two images (CTF often ships "clean vs. tampered" pairs)
+compare -metric AE a.png b.png diff.png
+compare -highlight-color red a.png b.png highlighted.png
+
+# 7. Dump raw pixel bytes for custom LSB logic in Python
+convert img -depth 8 RGB:- > pixels.bin
+python3 - <<'PY'
+d = open("pixels.bin","rb").read()
+bits = ''.join(str(b & 1) for b in d)
+out = bytes(int(bits[i:i+8],2) for i in range(0, (len(bits)//8)*8, 8))
+open("lsb.bin","wb").write(out)
+PY
+```
 
 ## Inspect
 
@@ -158,7 +213,11 @@ gmic in.png fx_lsb_steganography 1,0,0 output[0] out.png
 
 ## Scripts in this toolkit that call ImageMagick
 
-- `stego-triage.sh` — chains binwalk / exiftool / zsteg / IM separate-channels when applicable.
+- `image-stego.sh` — one-shot: metadata, strings, channel split, LSB visualisation,
+  bit planes, negate, auto-level, alpha extract, QR scan, binwalk, zsteg. Dumps
+  everything into an output directory. Use this first when you get an image.
+- `stego-triage.sh` — generic file triage (binwalk / exiftool / zsteg / IM
+  separate-channels when applicable) — broader than `image-stego`, less image-specific.
 
 ## Minimal reference card
 

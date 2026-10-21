@@ -89,6 +89,7 @@ See [USAGE.md](USAGE.md) for end-to-end examples per task and a per-script refer
 | --- | --- |
 | [magic-bytes.py](scripts/magic-bytes.py) | Identify files by signature + scan for embedded blobs (stdlib) |
 | [stego-triage.sh](scripts/stego-triage.sh) | Throw stego tools at a file; grep for flag |
+| [image-stego.sh](scripts/image-stego.sh) | ImageMagick-driven image workflow: metadata, channel split, LSB visualisation, bit planes, negate, auto-level, alpha extract, QR scan, binwalk, zsteg → all in one output dir |
 | [stego-whitespace.py](scripts/stego-whitespace.py) | Decode whitespace stego (SNOW / binary / count / inline schemes) (stdlib) |
 | [stego-zerowidth.py](scripts/stego-zerowidth.py) | Decode zero-width Unicode stego (binary / base4 / tag) (stdlib) |
 | [stego-nullcipher.py](scripts/stego-nullcipher.py) | Try acrostic / Nth-letter / word-length null-cipher extractions (stdlib) |
