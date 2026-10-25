@@ -11,6 +11,7 @@ online analysis services, no AI/ML libraries, no commercial-license tools.
 
 ```
 USAGE.md       How to run each script, with worked examples per task.
+CHECKLIST.md   Per-category playbook — what to try when you open a web/stego/osint/etc challenge.
 TOOLS.md       Tool list + ground rules.
 install.sh     Symlink scripts into ~/.local/bin so they're callable by short name.
 cheatsheets/   Markdown notes, one per category.
@@ -87,7 +88,8 @@ See [USAGE.md](USAGE.md) for end-to-end examples per task and a per-script refer
 | [sym-crypt.py](scripts/sym-crypt.py) | Symmetric encrypt/decrypt with key+IV/nonce: AES-ECB/CBC/CFB/OFB/CTR/GCM, 3DES-ECB/CBC, ChaCha20, ChaCha20-Poly1305, Blowfish. (needs `cryptography`) |
 | [caesar.py](scripts/caesar.py) | All 26 Caesar shifts + ROT47 (stdlib) |
 | [xor-crack.py](scripts/xor-crack.py) | Single-byte & repeating-key XOR via frequency (stdlib) |
-| [rsa-attack.py](scripts/rsa-attack.py) | e=3 / Fermat / factordb / Wiener / common factor (stdlib; prefer `RsaCtfTool` for serious use) |
+| [rsa-attack.py](scripts/rsa-attack.py) | Single-key: e=3 / Fermat / factordb / Wiener / common factor (stdlib) |
+| [rsa-pwn.py](scripts/rsa-pwn.py) | Multi-key / oracle / smooth-prime RSA: common-modulus, Håstad broadcast, Pollard p-1, Pollard rho, known-phi, known-d (Boneh), partial-d brute, blinding math (stdlib) |
 
 ### Forensics / stego / network
 

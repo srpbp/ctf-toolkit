@@ -578,3 +578,34 @@ sensitive.txt                         # (web mode) non-404 paths from quick prob
 Requires: `nmap`. Optional: `searchsploit` (apt install exploitdb), `curl`.
 
 Only use against systems you're explicitly authorized to test.
+
+### `rsa-pwn` — multi-key / oracle / smooth-prime RSA attacks (stdlib)
+
+```
+rsa-pwn common-modulus --n <N> --e1 <e1> --c1 <c1> --e2 <e2> --c2 <c2>
+rsa-pwn hastad --e <e> --n <N1> --c <C1> --n <N2> --c <C2> ...   # need ≥ e pairs
+rsa-pwn pollard-pm1 --n <N> [--B1 1000000] [--e <e> --c <c>]
+rsa-pwn pollard-rho --n <N>
+rsa-pwn known-phi   --n <N> --phi <phi> [--e <e> --c <c>]
+rsa-pwn known-d     --n <N> --e <e> --d <d> [--c <c>]
+rsa-pwn partial-d   --n <N> --e <e> --d_low <d_low> --bits <k_bits_known>
+rsa-pwn blind       --n <N> --e <e> --m <m_target>
+rsa-pwn --list
+```
+
+| Attack | When to reach for it |
+| --- | --- |
+| `common-modulus` | Same N, two ciphertexts with coprime e1, e2 |
+| `hastad` | Same small e (3,5), same plaintext, ≥ e different moduli |
+| `pollard-pm1` | N has a prime p where p-1 is smooth (CTFs often use primes crafted this way) |
+| `pollard-rho` | N has a small factor (< 2^40 ish) |
+| `known-phi` | Problem leaks phi(N) directly |
+| `known-d` | You have d but want to factor N (unlocks forging signatures) |
+| `partial-d` | d_low bits of d leaked (≲ 30 bits brute-feasible without Coppersmith) |
+| `blind` | RSA signing oracle refuses to sign the target but will sign anything else |
+
+### `rsa-attack` vs `rsa-pwn` — which to use
+
+Use `rsa-attack` for **single-key** problems (one N, one e, one c): e=3 cube root, Fermat (p and q close), Wiener (small d), factordb lookup, common factor between two moduli.
+
+Use `rsa-pwn` for everything else — multi-ciphertext attacks, factoring techniques beyond Fermat, oracle-driven attacks.
