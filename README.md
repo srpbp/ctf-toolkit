@@ -26,6 +26,11 @@ cipher-id --help                   # try any script by its short name
 
 See [USAGE.md](USAGE.md) for end-to-end examples per task and a per-script reference.
 
+## My notes (Notion)
+
+- [Write-ups](https://animated-handbell-061.notion.site/Write-ups-3c4b0a543f628079b2bcde51363cf3e5) — challenge solutions I've worked through, with the toolkit commands used.
+- [Modules](https://animated-handbell-061.notion.site/Modules-310b0a543f62804493ecf589bcdbda48) — study notes per topic / module.
+
 ## Cheatsheets
 
 | File | Category | Covers |
