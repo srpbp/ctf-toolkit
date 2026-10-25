@@ -300,6 +300,82 @@ See [`cheatsheets/misc.md`](cheatsheets/misc.md) for more.
 
 ---
 
+## Mobile (Android / iOS)
+
+### Triage — Android APK
+```bash
+apktool d app.apk -o apk-src                  # smali + resources
+jadx-gui app.apk                              # decompiled Java
+dex2jar app.apk                               # if you want JAR for dnSpyEx-style tools
+unzip -l app.apk | grep -iE 'secret|key|config'
+```
+
+### What to try per signal
+
+| Signal | First move |
+| --- | --- |
+| Hardcoded secret | `rg -n 'api[_-]?key|secret|token' apk-src/` |
+| Weird native lib (.so) | Treat as reversing: `cve-scan --binary lib/arm64-v8a/libnative.so` |
+| HTTPS traffic needed | Install mitmproxy cert on an emulator or `objection patchapk` + reinstall |
+| Dynamic analysis | `frida -U -f com.app -l hook.js` on a rooted device |
+| Shared preferences / SQLite DB in `/data/data/pkg/` | ALEAPP, or sqlite3 directly |
+| Obfuscated strings | FLOSS doesn't help here; manually trace in jadx |
+
+### iOS (.ipa)
+```bash
+unzip app.ipa; ls Payload/*.app
+otool -L Payload/App.app/App          # linked libs
+class-dump Payload/App.app/App        # Objective-C classes (if class-dump installed)
+ghidra for binary disassembly
+iLEAPP for extracted artefacts (chats, locations, Safari history)
+```
+
+### Mobile offline references
+```bash
+rg -n 'android|frida|smali' /opt/tools/HackTricks/
+```
+
+---
+
+## Cloud (AWS / Azure / GCP)
+
+Rare on CSG but common on bigger CTFs.
+
+| Signal | What it means |
+| --- | --- |
+| URL contains `s3.amazonaws.com` | Check bucket public listing: `curl bucket.s3.amazonaws.com` |
+| URL points to `*.cloudfront.net` | Backing S3 bucket; sometimes direct access reveals more |
+| `AKIA...` string in source / docs | AWS access key — DON'T use against real accounts without written auth |
+| App exposes `169.254.169.254` via SSRF | Cloud metadata — get IAM creds |
+| JWT with `iss: azure` / `iss: google` | OIDC token — check `aud` claim for IDP confusion |
+
+```bash
+# S3 bucket enumeration
+curl 'https://bucket.s3.amazonaws.com/?list-type=2'
+curl 'https://s3.amazonaws.com/bucket/'
+# AWS CLI for enumeration if credentials given
+aws s3 ls s3://bucket/ --no-sign-request      # anonymous
+aws sts get-caller-identity                   # confirm creds
+```
+
+---
+
+## Blockchain / Smart Contracts (Web3)
+
+Occasional in bigger CTFs; CSG has a web3 track in some years.
+
+| Target | Tool |
+| --- | --- |
+| Solidity source | Open in Remix IDE (browser), look for reentrancy / integer / tx.origin |
+| Deployed contract address | Fetch bytecode: `cast code <addr>` (Foundry); decompile with `panoramix` or similar |
+| On-chain state | `cast storage <addr> <slot>` to read storage; `cast call` to invoke view functions |
+| Wallet / private key leaked | Import to MetaMask, call vulnerable function |
+| ABI JSON | Load into Remix, generate call UI |
+
+Common vulns to look for: reentrancy, integer overflow (pre-Solidity 0.8), tx.origin, missing access control (public functions that should be onlyOwner), front-running (MEV).
+
+---
+
 ## OT / ICS / Hardware
 
 Rare but shows up in some CTFs (CSG has an OT track).

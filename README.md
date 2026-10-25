@@ -12,6 +12,7 @@ online analysis services, no AI/ML libraries, no commercial-license tools.
 ```
 USAGE.md       How to run each script, with worked examples per task.
 CHECKLIST.md   Per-category playbook — what to try when you open a web/stego/osint/etc challenge.
+TIPS.md        Meta tips (before/during/after an event; common mistakes; team coordination).
 TOOLS.md       Tool list + ground rules.
 install.sh     Symlink scripts into ~/.local/bin so they're callable by short name.
 cheatsheets/   Markdown notes, one per category.
@@ -40,13 +41,23 @@ See [USAGE.md](USAGE.md) for end-to-end examples per task and a per-script refer
 | [web-xss.md](cheatsheets/web-xss.md) | Web | Reflected / stored / DOM XSS, context + filter bypasses + CSP |
 | [web-ssrf.md](cheatsheets/web-ssrf.md) | Web | SSRF probes, cloud metadata, protocol smuggling |
 | [web-auth-jwt.md](cheatsheets/web-auth-jwt.md) | Web | JWT attacks + session + OAuth + password reset |
-| [crypto-hashes.md](cheatsheets/crypto-hashes.md) | Crypto | Hash ID, hashcat/john modes, classical, RSA, XOR, padding oracle |
+| [web-lfi-rfi.md](cheatsheets/web-lfi-rfi.md) | Web | LFI/RFI/path traversal, PHP wrappers, log poisoning, filter bypasses |
+| [web-ssti.md](cheatsheets/web-ssti.md) | Web | SSTI detection + per-engine RCE (Jinja2 / Twig / FreeMarker / Velocity / etc.) |
+| [web-deserialization.md](cheatsheets/web-deserialization.md) | Web | pickle / unserialize / Java readObject / Node / .NET / YAML.load gadgets |
+| [web-xxe.md](cheatsheets/web-xxe.md) | Web | XXE file read / OOB blind / SSRF / Office doc tricks / XInclude |
+| [web-upload.md](cheatsheets/web-upload.md) | Web | File upload bypasses — extension / MIME / content / polyglots / zip-slip |
+| [crypto-hashes.md](cheatsheets/crypto-hashes.md) | Crypto | Hash ID, hashcat/john modes, classical, XOR, padding oracle |
+| [crypto-rsa.md](cheatsheets/crypto-rsa.md) | Crypto | RSA attack picker — pairs with `rsa-attack` + `rsa-pwn` scripts |
+| [crypto-aes.md](cheatsheets/crypto-aes.md) | Crypto | AES mode-by-mode attacks — ECB penguin, CBC bit-flip, padding oracle, GCM nonce reuse |
+| [cyberchef.md](cheatsheets/cyberchef.md) | Crypto / MISC | When to reach for CyberChef vs. CLI; common recipes by task |
 | [forensics.md](cheatsheets/forensics.md) | Forensic | File carving, PDF, memory, disk, Windows DFIR (Chainsaw / EZ Tools) |
+| [forensics-memory.md](cheatsheets/forensics-memory.md) | Forensic | Volatility 3 playbook — Windows/Linux triage, hashdump, bash history, flag hunting |
 | [network.md](cheatsheets/network.md) | Network | pcap triage, tshark filters, DNS/ICMP/USB/TLS/wireless |
 | [stego.md](cheatsheets/stego.md) | Stego | Image / audio / video / text stego |
 | [imagemagick.md](cheatsheets/imagemagick.md) | Stego | ImageMagick recipes: bit-plane work, LSB extraction, diffs, QR preprocessing |
 | [osint.md](cheatsheets/osint.md) | OSINT | Pre-event prep reference; mostly offline during the comp |
 | [reversing.md](cheatsheets/reversing.md) | Reversing | Ghidra / radare2 / gdb-gef / dnSpy / jadx / angr / Frida |
+| [pwn.md](cheatsheets/pwn.md) | Pwn | Buffer overflow / ROP / format string / shellcode / heap basics |
 | [misc.md](cheatsheets/misc.md) | MISC | QR / SSTV / Morse / sqlite trivia / container escape / LPE |
 | [recon.md](cheatsheets/recon.md) | — | Recon helpers that cross categories |
 
